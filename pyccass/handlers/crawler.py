@@ -7,8 +7,7 @@ import .crawler_settings as const
 
 
 def get_stock_list(date: datetime) -> list:
-    date
-    stock_list_url = f"{const.LIST_URL}{(datetime.now() - timedelta(1)).strftime('%Y%m%d')}"
+    stock_list_url = f"{const.LIST_URL}{date.strftime('%Y%m%d')}"
 
     response = get(stock_list_url)
 
