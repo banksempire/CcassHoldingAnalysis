@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Tuple
+from typing import List, Tuple, Callable
 from urllib.request import getproxies
 
 from requests import Session, get
@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup as bs
 import pyccass.handlers.crawler_settings as consts
 
 
-def get_stock_list(date: datetime) -> List[Tuple]:
+def get_stock_list(date: datetime) -> List[Tuple[str, str]]:
     stock_list_url = f"{consts.LIST_URL}{date.strftime('%Y%m%d')}"
 
     response = get(stock_list_url, proxies=getproxies())
@@ -23,7 +23,7 @@ def get_stock_list(date: datetime) -> List[Tuple]:
     return stock_list
 
 
-def initialize_crawler():
+def initialize_crawler() -> Callable[[datetime, Tuple[str, str]], List[Tuple]]:
     '''
     initialize crawler
     '''
@@ -61,7 +61,7 @@ def initialize_crawler():
         )
         return content
 
-    def get_data(qdate: datetime, stock: dict) -> List[Tuple]:
+    def get_data(qdate: datetime, stock: Tuple[str, str]) -> List[Tuple]:
         # Generate payload
         code, name = stock
 
