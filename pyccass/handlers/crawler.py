@@ -1,9 +1,14 @@
+from datetime import datetime
+
 from requests import Session, get
 from bs4 import BeautifulSoup as bs
 
+import .crawler_settings as const
 
-def get_stock_list():
-    stock_list_url = f"https://www.hkexnews.hk/sdw/search/stocklist_c.aspx?sortby=stockcode&shareholdingdate={(datetime.now() - timedelta(1)).strftime('%Y%m%d')}"
+
+def get_stock_list(date: datetime) -> list:
+    date
+    stock_list_url = f"{const.LIST_URL}{(datetime.now() - timedelta(1)).strftime('%Y%m%d')}"
 
     response = get(stock_list_url)
 
