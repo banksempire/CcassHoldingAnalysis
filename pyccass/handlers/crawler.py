@@ -48,12 +48,11 @@ def initialize_crawler() -> Callable[[datetime, Tuple[str, str]], List[Tuple]]:
     # Initialize session
     session = Session()
     session.headers.update(HEADER)
-    session.proxies.update(get_proxies())
 
     url = DATA_URL
 
     # Get VIEWSTATE from website
-    response = session.post(url)
+    response = session.post(url, proxies=get_proxies())
     bsc = bs(response.content, features="html.parser")
 
     __VIEWSTATEGENERATOR = bsc.find(
@@ -96,7 +95,7 @@ def initialize_crawler() -> Callable[[datetime, Tuple[str, str]], List[Tuple]]:
         }
 
         # Get response
-        response = session.post(url, data=payload)
+        response = session.post(url, data=payload, proxies=get_proxies())
         bsc = bs(response.content, features="html.parser")
         # Parse response
         tbody = bsc.tbody
