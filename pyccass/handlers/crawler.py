@@ -1,9 +1,10 @@
 from datetime import datetime
 from typing import List, Tuple, Callable
-from urllib.request import getproxies
 
 from requests import Session, get
 from bs4 import BeautifulSoup as bs
+
+from pyccass.utils.proxies import get_proxies
 
 LIST_URL = "https://www.hkexnews.hk/sdw/search/stocklist_c.aspx?sortby=stockcode&shareholdingdate="
 
@@ -27,7 +28,7 @@ HEADER = {
 def get_stock_list(date: datetime) -> List[Tuple[str, str]]:
     stock_list_url = f"{LIST_URL}{date.strftime('%Y%m%d')}"
 
-    response = get(stock_list_url, proxies=getproxies())
+    response = get(stock_list_url, proxies=get_proxies())
 
     bsc = bs(response.content, features="html.parser")
     stock_list = [
@@ -47,7 +48,7 @@ def initialize_crawler() -> Callable[[datetime, Tuple[str, str]], List[Tuple]]:
     # Initialize session
     session = Session()
     session.headers.update(HEADER)
-    session.proxies.update(getproxies())
+    session.proxies.update(get_proxies())
 
     url = DATA_URL
 
