@@ -1,5 +1,5 @@
-from datetime import date, datetime, timedelta
-from typing import List
+from datetime import datetime
+from typing import List, Optional
 import sqlite3
 
 import pandas as pd
@@ -24,7 +24,7 @@ class DBHandler:
         """)
 
         con.execute("""
-        CREATE INDEX date_idx 
+        CREATE INDEX date_idx
         ON ccass_holding (date)
         """)
 
@@ -41,7 +41,7 @@ class DBHandler:
     def query_by_date(self, date: datetime) -> pd.DataFrame:
         timestamp = date.timestamp()
         query_string = f"""
-        SELECT * 
+        SELECT *
         FROM ccass_holding
         WHERE date={timestamp}
         """
@@ -53,20 +53,26 @@ class DBHandler:
 
         return df
 
-    def query_max_date(self) -> datetime:
+    def query_max_date(self) -> Optional[datetime]:
         cur = self.con.execute("""
         SELECT MAX(date)
         FROM ccass_holding
         """)
         timestamp = list(cur)[0][0]
-        maxdate = datetime.fromtimestamp(timestamp)
-        return maxdate
+        try:
+            date = datetime.fromtimestamp(timestamp)
+            return date
+        except:
+            return None
 
-    def query_min_date(self) -> datetime:
+    def query_min_date(self) -> Optional[datetime]:
         cur = self.con.execute("""
         SELECT Min(date)
         FROM ccass_holding
         """)
         timestamp = list(cur)[0][0]
-        maxdate = datetime.fromtimestamp(timestamp)
-        return maxdate
+        try:
+            date = datetime.fromtimestamp(timestamp)
+            return date
+        except:
+            return None
