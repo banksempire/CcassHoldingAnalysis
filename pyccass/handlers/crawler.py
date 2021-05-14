@@ -5,11 +5,26 @@ from urllib.request import getproxies
 from requests import Session, get
 from bs4 import BeautifulSoup as bs
 
-import pyccass.handlers.crawler_settings as consts
+LIST_URL = "https://www.hkexnews.hk/sdw/search/stocklist_c.aspx?sortby=stockcode&shareholdingdate="
 
+DATA_URL = 'https://www.hkexnews.hk/sdw/search/searchsdw_c.aspx'
+
+HEADER = {
+    'dnt': '1',
+    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.85 Safari/537.36 Edg/90.0.818.46',
+    'origin': 'https://www.hkexnews.hk',
+    'referer': 'https://www.hkexnews.hk/sdw/search/searchsdw_c.aspx',
+    'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="90", "Microsoft Edge";v="90"',
+    'sec-ch-ua-mobile': '?0',
+    'sec-fetch-dest': 'document',
+    'sec-fetch-mode': 'navigate',
+    'sec-fetch-site': 'same-origin',
+    'sec-fetch-user': '?1',
+    'upgrade-insecure-requests': '1',
+}
 
 def get_stock_list(date: datetime) -> List[Tuple[str, str]]:
-    stock_list_url = f"{consts.LIST_URL}{date.strftime('%Y%m%d')}"
+    stock_list_url = f"{LIST_URL}{date.strftime('%Y%m%d')}"
 
     response = get(stock_list_url, proxies=getproxies())
 
@@ -30,10 +45,10 @@ def initialize_crawler() -> Callable[[datetime, Tuple[str, str]], List[Tuple]]:
 
     # Initialize session
     session = Session()
-    session.headers.update(consts.HEADER)
+    session.headers.update(HEADER)
     session.proxies.update(getproxies())
 
-    url = consts.DATA_URL
+    url = DATA_URL
 
     # Get VIEWSTATE from website
     response = session.post(url)
