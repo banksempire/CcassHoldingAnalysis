@@ -1,13 +1,18 @@
 from datetime import datetime
 from typing import List, Optional
 import sqlite3
+from threading import Lock
 
 import pandas as pd
 
 
 class DBHandler:
     def __init__(self, address: str):
-        self.con: sqlite3.Connection = sqlite3.connect(address)
+        self.con: sqlite3.Connection = sqlite3.connect(
+            address,
+            check_same_thread=False
+        )
+        self.dblock: Lock = Lock()
         try:
             self._create_table()
         except:
@@ -32,11 +37,12 @@ class DBHandler:
 
     def insert_many(self, data: List[tuple]):
         con = self.con
-        con.executemany(
-            """INSERT INTO ccass_holding VALUES (?,?,?,?,?,?)""",
-            data
-        )
-        con.commit()
+        with self.dblock:
+            con.executemany(
+                """INSERT INTO ccass_holding VALUES (?,?,?,?,?,?)""",
+                data
+            )
+            con.commit()
 
     def query_by_date(self, date: datetime) -> pd.DataFrame:
         timestamp = date.timestamp()
