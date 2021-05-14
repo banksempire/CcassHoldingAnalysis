@@ -23,12 +23,13 @@ HEADER = {
     'upgrade-insecure-requests': '1',
 }
 
+
 def get_stock_list(date: datetime) -> List[Tuple[str, str]]:
     stock_list_url = f"{LIST_URL}{date.strftime('%Y%m%d')}"
 
     response = get(stock_list_url, proxies=getproxies())
 
-    bsc = bs(response.content)
+    bsc = bs(response.content, features="html.parser")
     stock_list = [
         (
             tr.td.text.rstrip().lstrip(),  # code
