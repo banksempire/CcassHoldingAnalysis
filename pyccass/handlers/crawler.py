@@ -108,7 +108,6 @@ def initialize_crawler() -> Callable[[datetime, Tuple[str, str]], List[Tuple]]:
         if tbody is None:
             table = []
         else:
-            tr = tbody.find_all('tr')[0]
             table = [_parse_row(tr, qdate, code)
                      for tr in tbody.find_all('tr')]
         return table
