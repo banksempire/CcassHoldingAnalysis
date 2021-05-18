@@ -2,9 +2,16 @@ from datetime import datetime, timedelta
 from typing import Callable
 from queue import Queue
 from threading import Thread
+from time import sleep
 
 from pyccass.handlers.crawler import initialize_crawler, get_stock_list
 from pyccass.handlers.database import DBHandler
+
+
+def trafic_controler(permission: Queue, sleep_time: float):
+    while True:
+        permission.put(None)
+        sleep(sleep_time)
 
 
 def commander(date: datetime, out_q: Queue):
@@ -17,17 +24,18 @@ def commander(date: datetime, out_q: Queue):
     print('Commander Out.')
 
 
-def producer(func: Callable, in_q: Queue, out_q: Queue):
+def download_data(func: Callable, in_q: Queue, out_q: Queue, permission: Queue):
     while True:
         command = in_q.get()
         if command is None:
             in_q.put(None)
             break
+        permission.get()
         product = func(*command)
         out_q.put(product)
 
 
-def consumer(func: Callable, in_q: Queue):
+def save2db(func: Callable, in_q: Queue):
     while True:
         command = in_q.get()
         if command is None:
@@ -36,21 +44,29 @@ def consumer(func: Callable, in_q: Queue):
         func(command)
 
 
-def async_update():
+def async_update(sleep_time: float):
     db = DBHandler('database.db')
     date = db.query_max_date()
     date = datetime.now() - timedelta(365) if date is None else date
 
     requests_queue: Queue = Queue(20)
     responses_queue: Queue = Queue(10)
+    permission: Queue = Queue(1)
+
+    Thread(target=trafic_controler,
+           args=(permission, sleep_time,),
+           daemon=True).start()
 
     # Fire up crawlers threads
     get_data = initialize_crawler()
     crawlers = list()
     for _ in range(10):
-        t = Thread(target=producer, args=(get_data,
-                                          requests_queue,
-                                          responses_queue))
+        t = Thread(target=download_data,
+                   args=(get_data,
+                         requests_queue,
+                         responses_queue,
+                         permission)
+                   )
         t.start()
         crawlers.append(t)
 
@@ -58,8 +74,9 @@ def async_update():
     insert_many = db.insert_many
     savers = list()
     for _ in range(2):
-        t = Thread(target=consumer, args=(insert_many,
-                                          responses_queue))
+        t = Thread(target=save2db,
+                   args=(insert_many,
+                         responses_queue))
         t.start()
         savers.append(t)
 
