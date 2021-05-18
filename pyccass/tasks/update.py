@@ -81,8 +81,8 @@ def async_update(sleep_time: float):
         savers.append(t)
 
     # Run main thread loop
-    commander(datetime(2021, 5, 12), requests_queue)
-    # commander(date, requests_queue)
+    # commander(datetime(2021, 5, 12), requests_queue)
+    commander(date, requests_queue)
 
     # Join all crawlers and send stop signal to consumers
     [t.join() for t in crawlers]
