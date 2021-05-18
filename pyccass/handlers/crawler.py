@@ -96,6 +96,7 @@ def initialize_crawler() -> Callable[[datetime, Tuple[str, str]], List[Tuple]]:
 
         # Get response
         response = session.post(url, data=payload, proxies=get_proxies())
+        assert response.status_code == 200
         bsc = bs(response.content, features="html.parser")
         # Parse response
         tbody = bsc.tbody
