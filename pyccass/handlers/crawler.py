@@ -62,6 +62,12 @@ def initialize_crawler() -> Callable[[datetime, Tuple[str, str]], List[Tuple]]:
 
     def _parse_row(tr, date: datetime, stockcode: str):
         row = tr.find_all('td')
+        try:
+            holding_pct = float(row[4].find(
+                'div', class_="mobile-list-body").text.replace('%', ''))
+        except IndexError:
+            holding_pct = 0.0
+
         content = (
             int(date.timestamp()),
             stockcode,
@@ -72,8 +78,7 @@ def initialize_crawler() -> Callable[[datetime, Tuple[str, str]], List[Tuple]]:
             # holding
             int(row[3].find('div', class_="mobile-list-body").text.replace(',', '')),
             # holding_pct
-            float(row[4].find(
-                'div', class_="mobile-list-body").text.replace('%', '')),
+            holding_pct,
         )
         return content
 
