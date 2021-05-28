@@ -15,11 +15,7 @@ from pyccass.tasks.update import async_update
 
 
 def main():
-    # get_data = initialize_crawler()
-    # get_data(datetime(2020, 4, 27), ('01413', '廣聯工程控股'))
-
-    # # get('https://www.baidu.com', proxies=get_proxies())
-    async_update()
+    async_update(0.1)
 
 
 if __name__ == '__main__':
